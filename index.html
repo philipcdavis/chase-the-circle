@@ -4,107 +4,137 @@
 <head>
     <title>d3 Bokeh</title>
     <style type="text/css">
-        body {
-            margin: 0;
-        }
-        #svg {
-            margin: 0;
+        #chart {
+            border: 1px solid #ccc;
+            width: 1000px;
             height: 500px;
-            width: 960px;
-            background-color: #131626;
-            background: linear-gradient(135deg, #ffda6b 0%,  #ffad6b 100%);
         }
         
+        text {
+            font-family: helvetica, arial, sans-serif;
+            font-size: 60px;
+            color: #444;
+        }
+        
+        #score {
+            float: right;
+        }
+        
+        #time {
+            float: left;
+        }
+        
+        .container {
+            width: 1000px;
+        }
+
     </style>
 </head>
 
 <body>
 
-    <div id="svg"></div>
+    <div class="container">
+        <div id="chart"></div>
+        <div id="score"></div>
+        <div id="time"></div>
+        <div id="replay"></div>
+    </div>
     
     
     
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript">
-        var width = 960;
+        var width = 1000;
         var height = 500;
-        var n = 50;
+        var clickable = true;
+        var padding = 60;
+        var score = 1;
+        var timeLeft;
+        var intervalTimer;
         
-        var svg = d3.select("#svg")
+        var svg = d3.select("#chart")
             .append("svg")
             .attr("width", width)
             .attr("height", height);
         
         
-        //Randomly generated nodes
+        var dot = svg.append("circle")
+            .attr("r", 50)
+            .attr("cy", 250)
+            .attr("cx", 500)
+            .attr("fill", "hsl(" + (Math.random() * 360) + ",95%,60%)")
+            .on('click', function () {       
+               update();
+               points.text(score++);
+             });
         
-        var nodes = d3.range(n).map(function() {
-            return {
-                x: width * Math.random(),
-                y: height * Math.random(),
-                dx: Math.random() / 2,
-                dy: Math.random() / 2,
-                r: (Math.random() * 45) + 40
-              };
-        })
+        var overlay = svg.append("rect")
+            .transition()
+            .duration(100)
+            .attr("height", height)
+            .attr("width", width)
+            .attr("fill", "#355b85")
+            .attr("fill-opacity", .4);
         
+       
         
-        var fillScale = d3.scale.linear()
-            .domain([40, 85])
-            .range([0.95,0])
+        var points = d3.select("#score")
+            .append("text")
+            .text("0");
         
-        var filter = svg.append("defs")
-            .append("filter")
-            .attr("id", "blur")
-            .append("feGaussianBlur")
-            .attr("stdDeviation", 4);
+        var time = d3.select("#time")
+            .append("text")
+            .text("15.00");
+         
         
-        var circles = svg.selectAll(".circles")
-            .data(nodes)
-            .enter()
-            .append("circle")
-            .attr("r", function(d) { return d.r})
-            .attr("fill", "#ffe38f")
-            .attr("fill-opacity", function(d){
-                return fillScale(d.r)
-            })
-            .attr("filter", function(d){
-                if(d.r > 45) {
-                   return "url(#blur)"
-                } else {
-                    return null;
-                }
+        var update = function(){
+            dot
+            .transition()
+            .duration(100)
+            .attr("fill", "hsl(" + (Math.random() * 360) + ",95%,60%)")
+            .attr("r", (Math.random() * 40) + 20)
+            .attr("cy", Math.random() * 500)
+            .attr("cx", Math.random() * 1000);
+        }
+        
+        var startGame = function() {
+            score = 0;
+            timeLeft = 15000;
+            overlay.attr("height", 0);
+            intervalTimer = setInterval(timer, 100);
+        };
+        startGame();
+        
+        function timer() {
+           timeLeft = timeLeft - 100;
+            time.text(function(d) { return timeLeft / 1000 });
+            if (timeLeft === 0) {
+                endGame();
+                clearInterval(intervalTimer);
+            }
+        }
+        
+        function endGame() {
+            overlay.attr("height", height);
+            dot
+                .transition()
+                .duration(100)
+                .attr("r", 50)
+                .attr("cy", 250)
+                .attr("cx", 500);
+        }
+        var restart = function(){
+            startGame();
+        }
+        
+        var replay = d3.select("#replay")
+            .append("text")
+            .text("Start Over")
+            .attr("class","btn")
+            .on("click", function(){
+                restart();
             });
-            
-        
-        d3.timer(function() {
-        
-        // Update the circle positions.
-        circles
-            .attr("cx", function(d) { 
-                // Increase your tick
-                d.x += d.dx;
-                // Recycle your nodes
-                if (d.x > width + d.r) {
-                    d.x -= width + (d.r*2)
-                } else if (d.x < -d.r) { 
-                    d.x += width + (d.r*2)
-                }
-                return d.x; 
-            })
-            .attr("cy", function(d) {
-                // Increase your tick
-                d.y += d.dy;
-                // Recycle your nodes
-                if (d.y > height + d.r) { 
-                    d.y -= height + (d.r*2)
-                } else if (d.y < - d.r) {
-                    d.y += height + (d.r*2)
-                }
-                return d.y; 
-            });
-        
-        });
+
     </script>
 </body>
 </html>
