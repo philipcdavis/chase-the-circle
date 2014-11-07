@@ -1,4 +1,2 @@
-d3-bokeh
+Chase the Circle
 ========
-
-d3 generated bokeh
