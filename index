@@ -1,0 +1,114 @@
+ <!DOCTYPE html>
+
+<html>
+<head>
+    <title>d3 Bokeh</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        #svg {
+            margin: 0;
+            height: 500px;
+            width: 960px;
+            background-color: #131626;
+            background: linear-gradient(135deg, #ffda6b 0%,  #ffad6b 100%);
+        }
+        
+        .circles {
+            blend-mode: multiply;
+        }
+        
+    </style>
+</head>
+
+<body>
+
+    <div id="svg"></div>
+    
+    
+    
+    <script src="d3.v3.min.js"></script>
+    <script type="text/javascript">
+        var width = 960;
+        var height = 500;
+        var n = 50;
+        
+        var svg = d3.select("#svg")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        
+        //Randomly generated nodes
+        
+        var nodes = d3.range(n).map(function() {
+            return {
+                x: width * Math.random(),
+                y: height * Math.random(),
+                dx: Math.random() / 2,
+                dy: Math.random() / 2,
+                r: (Math.random() * 45) + 40
+              };
+        })
+        
+        
+        var fillScale = d3.scale.linear()
+            .domain([40, 85])
+            .range([0.95,0])
+        
+        var filter = svg.append("defs")
+            .append("filter")
+            .attr("id", "blur")
+            .append("feGaussianBlur")
+            .attr("stdDeviation", 4);
+        
+        var circles = svg.selectAll(".circles")
+            .data(nodes)
+            .enter()
+            .append("circle")
+            .attr("r", function(d) { return d.r})
+            .attr("fill", "#ffe38f")
+            .attr("fill-opacity", function(d){
+                return fillScale(d.r)
+            })
+            .attr("filter", function(d){
+                if(d.r > 45) {
+                   return "url(#blur)"
+                } else {
+                    return null;
+                }
+            });
+            
+        
+        d3.timer(function() {
+        
+        // Update the circle positions.
+        circles
+            .attr("cx", function(d) { 
+                // Increase your tick
+                d.x += d.dx;
+                // Recycle your nodes
+                if (d.x > width + d.r) {
+                    d.x -= width + (d.r*2)
+                } else if (d.x < -d.r) { 
+                    d.x += width + (d.r*2)
+                }
+                return d.x; 
+            })
+            .attr("cy", function(d) {
+                // Increase your tick
+                d.y += d.dy;
+                // Recycle your nodes
+                if (d.y > height + d.r) { 
+                    d.y -= height + (d.r*2)
+                } else if (d.y < - d.r) {
+                    d.y += height + (d.r*2)
+                }
+                return d.y; 
+            });
+        
+        });
+    </script>
+</body>
+</html>
