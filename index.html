@@ -2,17 +2,21 @@
 
 <html>
 <head>
-    <title>d3 Bokeh</title>
+    <title>Chase the circle</title>
     <style type="text/css">
+        body {
+            background: #eee;
+        }
         #chart {
-            border: 1px solid #ccc;
+            background: #fff;
             width: 1000px;
             height: 500px;
+           
         }
         
         text {
             font-family: helvetica, arial, sans-serif;
-            font-size: 60px;
+            font-size: 40px;
             color: #444;
         }
         
@@ -26,6 +30,25 @@
         
         .container {
             width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .btn {
+            background-color: #eee;;
+            padding: 7px 14px;
+            border-radius: 3px;
+            font-size: 20px;
+            border: 1px solid #ccc;
+            width: 100px;
+            display: block;
+            text-align: center;
+            height: 25px;
+            margin: 0 auto;
+        }
+        
+        .btn:hover {
+            cursor: pointer;
+            opacity: .7;
         }
 
     </style>
@@ -42,7 +65,7 @@
     
     
     
-    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="d3.v3.min.js"></script>
     <script type="text/javascript">
         var width = 1000;
         var height = 500;
@@ -65,12 +88,10 @@
             .attr("fill", "hsl(" + (Math.random() * 360) + ",95%,60%)")
             .on('click', function () {       
                update();
-               points.text(score++);
+               points.text(++score);
              });
         
         var overlay = svg.append("rect")
-            .transition()
-            .duration(100)
             .attr("height", height)
             .attr("width", width)
             .attr("fill", "#355b85")
@@ -98,42 +119,49 @@
         }
         
         var startGame = function() {
+            d3.select("#replay a").remove();
+            points.text("0");
             score = 0;
-            timeLeft = 15000;
+            timeLeft = 10000;
             overlay.attr("height", 0);
             intervalTimer = setInterval(timer, 100);
+            update();
         };
-        startGame();
+        
         
         function timer() {
            timeLeft = timeLeft - 100;
             time.text(function(d) { return timeLeft / 1000 });
             if (timeLeft === 0) {
-                endGame();
                 clearInterval(intervalTimer);
+                endGame();
             }
         }
         
         function endGame() {
+            dot.transition()
+            .duration(0)
+            .attr("r", 0)
+            .attr("cy", 250)
+            .attr("cx", 500);
             overlay.attr("height", height);
-            dot
-                .transition()
-                .duration(100)
-                .attr("r", 50)
-                .attr("cy", 250)
-                .attr("cx", 500);
-        }
-        var restart = function(){
-            startGame();
-        }
-        
-        var replay = d3.select("#replay")
-            .append("text")
-            .text("Start Over")
-            .attr("class","btn")
-            .on("click", function(){
-                restart();
+            
+            time.text("Game Over");
+            
+            var replay = d3.select("#replay")
+                .append("a")
+                .text("Start")
+                .attr("class","btn")
+                .on("click", function(){
+                   startGame();
             });
+            
+            
+        }
+        endGame();
+        
+        
+        
 
     </script>
 </body>
