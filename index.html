@@ -3,9 +3,12 @@
 <html>
 <head>
     <title>Chase the circle</title>
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
     <style type="text/css">
         body {
             background: #eee;
+            font-family: 'PT Sans', sans-serif;
+            color: #4c516b;
         }
         #chart {
             background: #fff;
@@ -15,13 +18,12 @@
         }
         
         text {
-            font-family: helvetica, arial, sans-serif;
             font-size: 40px;
-            color: #444;
         }
         
         #score {
             float: right;
+            text-align: right;
         }
         
         #time {
@@ -34,21 +36,44 @@
         }
         
         .btn {
-            background-color: #eee;;
-            padding: 7px 14px;
-            border-radius: 3px;
-            font-size: 20px;
-            border: 1px solid #ccc;
-            width: 100px;
+            background-color: #fff;
             display: block;
             text-align: center;
             height: 25px;
             margin: 0 auto;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 3px;
+            transition: all .2s ease;
         }
         
         .btn:hover {
             cursor: pointer;
-            opacity: .7;
+            opacity: .8;
+        }
+        
+        h3 {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            line-height: 0;
+            margin-top: 25px;
+        }
+        
+        .md-btn {
+            max-width: 170px;
+            padding: 15px 30px;
+            font-size: 20px;
+            position: relative;
+            box-shadow: 0 2px 3px #e8caca;
+            top: -290px;
+        }
+        .sm-btn {
+            padding: 9px 20px 5px 20px;
+            width: 100px;
+            box-shadow: 0 2px 3px #e0e0e0;
+            margin-top: 30px;
         }
 
     </style>
@@ -58,9 +83,19 @@
 
     <div class="container">
         <div id="chart"></div>
-        <div id="score"></div>
-        <div id="time"></div>
-        <div id="replay"></div>
+        <div id="score">
+            <h3>Score</h3>
+        </div>
+        <div id="time">
+            <h3>Time</h3>
+        </div>
+        <div id="start"></div>
+        <div id="reset">
+             <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.philipcdavis.com/chase-the-circle" data-via="philipcdavis">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+            
+        </div>
     </div>
     
     
@@ -94,8 +129,7 @@
         var overlay = svg.append("rect")
             .attr("height", height)
             .attr("width", width)
-            .attr("fill", "#355b85")
-            .attr("fill-opacity", .4);
+            .attr("fill", "#f7d7d7");
         
        
         
@@ -119,14 +153,27 @@
         }
         
         var startGame = function() {
-            d3.select("#replay a").remove();
+            d3.select("#start a").remove();
             points.text("0");
             score = 0;
-            timeLeft = 10000;
+            timeLeft = 15000;
             overlay.attr("height", 0);
+            clearInterval(intervalTimer);
             intervalTimer = setInterval(timer, 100);
             update();
+            
+            d3.select("#reset")
+                .append("a")
+                .text("End Game")
+                .attr("class","btn sm-btn")
+                .on("click", function(){
+                    timeLeft = 0;
+                    clearInterval(intervalTimer);
+                    endGame();
+            });
         };
+        
+        
         
         
         function timer() {
@@ -139,6 +186,7 @@
         }
         
         function endGame() {
+            d3.select("#reset a").remove();
             dot.transition()
             .duration(0)
             .attr("r", 0)
@@ -146,12 +194,12 @@
             .attr("cx", 500);
             overlay.attr("height", height);
             
-            time.text("Game Over");
+            time.text("0.0");
             
-            var replay = d3.select("#replay")
+            var startButton = d3.select("#start")
                 .append("a")
-                .text("Start")
-                .attr("class","btn")
+                .text("New Game")
+                .attr("class","btn md-btn")
                 .on("click", function(){
                    startGame();
             });
