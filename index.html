@@ -140,7 +140,14 @@
         var time = d3.select("#time")
             .append("text")
             .text("15.00");
-         
+        
+        var verticalRange = d3.scale.linear()
+            .domain([0, height])
+            .range([60, height - 60])
+        var horizontalRange = d3.scale.linear()
+            .domain([0, width])
+            .range([60, width - 60])
+
         
         var update = function(){
             dot
@@ -148,8 +155,8 @@
             .duration(100)
             .attr("fill", "hsl(" + (Math.random() * 360) + ",95%,60%)")
             .attr("r", (Math.random() * 40) + 20)
-            .attr("cy", Math.random() * 500)
-            .attr("cx", Math.random() * 1000);
+            .attr("cy", verticalRange(Math.random() * 500))
+            .attr("cx", horizontalRange(Math.random() * 1000));
         }
         
         var startGame = function() {
